@@ -100,8 +100,8 @@ def download_mimic_iii_records(RecordsFile, OutputPath):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input', type=str, help='File containing the names of the records downloaded from the MIMIC-III DB')
-    parser.add_argument('--output', type=str, help='Folder for storing downloaded MIMIC-III records')
+    parser.add_argument('input', type=str, help='File containing the names of the records downloaded from the MIMIC-III DB')
+    parser.add_argument('output', type=str, help='Folder for storing downloaded MIMIC-III records')
     args = parser.parse_args()
     
     RecordsFile = args.input
