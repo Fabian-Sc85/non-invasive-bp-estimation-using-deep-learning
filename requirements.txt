@@ -1,6 +1,9 @@
-h5py
-heartpy
+h5py==3.3.0
+heartpy==1.2.7
 wfdb==3.4.0
 kapre==0.3.5
 tensorflow-gpu==2.4.1
-natsort
+natsort==7.1.1
+pandas==1.3.1
+matplotlib==3.4.2
+sklearn==0.42.2
