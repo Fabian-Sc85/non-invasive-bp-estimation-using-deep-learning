@@ -3,12 +3,16 @@
 ## Introduction
 The code contained in this repository is intended to reproduce the results of the paper "Assessment of non-invasive blood pressure prediction from PPG and rPPG signals using deep learning" [Link to Paper](). Contained herein are scripts for downloading data from the MIMC-II database, data preprocessing as well as  training neural networks for (r)PPG based blood pressure prediction.
 
-Trainings are performed using Tensorflow 2.4.1 and Python 3.9. The scripts can be called from the command line. 
+Trainings are performed using Tensorflow 2.4.1 and Python 3.8. The scripts can be executed from the command line. 
 
 ## Installation
-This repository uses a python virtual environment which can be created using the command
+To create a virtual environment using Python 3.8 as interpreter the `virtualenv` package is required. It can be installed using the command
 ```
-python3 -m venv venv/
+pip install virtualenv
+```
+The virtual environment can then be created using the command
+```
+virtualenv --python=/usr/bin/python3.8 venv/
 ```
 The virtual environment can be activated using the command
 ```angular2html
@@ -58,3 +62,21 @@ optional arguments:
   --save_bp_data SAVE_BP_DATA
                         0: save BP data only; 1: save PPG and BP data
 ```
+### Creating tfrecord datasets for training
+To train neural networks, the dataset created by the script `prepare_MIMIC_dataset.py` must be divided into training, validation and test set. The script `h5_to_tfrecord.py` does this by dividing the dataset based on (a) a subject based split or (b) by assigning samples randomly depending on the user's choice. The data will be stored separately for training, validation and testset in .tfrecord files which will be used during training.  
+```
+usage: h5_to_tfrecord.py [-h] [--ntrain NTRAIN] [--nval NVAL] [--ntest NTEST] [--divbysubj DIVBYSUBJ] input output
+
+positional arguments:
+  input                 Path to the .h5 file containing the dataset
+  output                Target folder for the .tfrecord files
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --ntrain NTRAIN       Number of samples in the training set (default: 1e6)
+  --nval NVAL           Number of samples in the validation set (default: 2.5e5)
+  --ntest NTEST         Number of samples in the test set (default: 2.5e5)
+  --divbysubj DIVBYSUBJ
+                        Perform subject based (1) or sample based (0) division of the dataset
+```
+### Training neural networks using PPG signals

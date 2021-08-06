@@ -7,3 +7,4 @@ natsort==7.1.1
 pandas==1.3.1
 matplotlib==3.4.2
 sklearn==0.42.2
+mat73==0.50
