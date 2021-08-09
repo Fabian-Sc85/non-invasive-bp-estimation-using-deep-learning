@@ -80,3 +80,36 @@ optional arguments:
                         Perform subject based (1) or sample based (0) division of the dataset
 ```
 ### Training neural networks using PPG signals
+The script `ppg_train_mimic_iii.py` trains neural networks using tfrecord data created by script `h5_to_tfrecord.py`. Available neural architectures include AlexNet [[1]](#1), ResNet [[2]](#2), an architecture published by Slapnicar et al. [[3]](#3) and an LSTM network. The networks are trained using an early stopping strategy. The network weights that achieved the lowest validation loss are subsequently used to estimate BP values on the test set. Test results are stored in a .csv file for later analysis. Training checkpoints are also used for later fine tuning and personalization.
+```
+usage: ppg_training_mimic_iii.py [-h] [--arch ARCH] [--lr LR] [--batch_size BATCH_SIZE] [--winlen WINLEN] [--epochs EPOCHS]
+                                 [--gpuid GPUID]
+                                 ExpName datadir resultsdir chkptdir
+
+positional arguments:
+  ExpName               unique name for the training
+  datadir               folder containing the train, val and test subfolders containing tfrecord files
+  resultsdir            Directory in which results are stored
+  chkptdir              directory used for storing model checkpoints
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --arch ARCH           neural architecture used for training (alexnet (default), resnet, slapnicar, lstm)
+  --lr LR               initial learning rate (default: 0.003)
+  --batch_size BATCH_SIZE
+                        batch size used for training (default: 32)
+  --winlen WINLEN       length of the ppg windows in samples (default: 875)
+  --epochs EPOCHS       maximum number of epochs for training (default: 60)
+  --gpuid GPUID         GPU-ID used for training in a multi-GPU environment (default: None)
+
+```
+
+## References
+<a id="1">[1]</a> A. Krizhevsky, I. Sutskever, und G. E. Hinton, „ImageNet classification with deep convolutional neural networks“,
+    Commun. ACM, Bd. 60, Nr. 6, S. 84–90, Mai 2017, doi: 10.1145/3065386.
+
+<a id="1">[2]</a> K. He, X. Zhang, S. Ren, und J. Sun, „Deep Residual Learning for Image Recognition“, in 2016 IEEE Conference on
+    Computer Vision and Pattern Recognition (CVPR), Las Vegas, NV, USA, Juni 2016, S. 770–778. doi: 10.1109/CVPR.2016.90.
+
+<a id="1">[3]</a> G. Slapničar, N. Mlakar, und M. Luštrek, „Blood Pressure Estimation from Photoplethysmogram Using a Spectro-Temporal
+    Deep Neural Network“, Sensors, Bd. 19, Nr. 15, S. 3420, Aug. 2019, doi: 10.3390/s19153420.
