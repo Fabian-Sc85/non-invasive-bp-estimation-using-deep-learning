@@ -80,7 +80,7 @@ optional arguments:
                         Perform subject based (1) or sample based (0) division of the dataset
 ```
 ### Training neural networks using PPG signals
-The script `ppg_train_mimic_iii.py` trains neural networks using tfrecord data created by script `h5_to_tfrecord.py`. Available neural architectures include AlexNet [[1]](#1), ResNet [[2]](#2), an architecture published by Slapnicar et al. [[3]](#3) and an LSTM network. The networks are trained using an early stopping strategy. The network weights that achieved the lowest validation loss are subsequently used to estimate BP values on the test set. Test results are stored in a .csv file for later analysis. Training checkpoints are also used for later fine tuning and personalization.
+The script `ppg_train_mimic_iii.py` trains neural networks using tfrecord data created by script `h5_to_tfrecord.py`. Available neural architectures include AlexNet [[1]](#1), ResNet [[2]](#2), an architecture published by Slapnicar et al. [[3]](#3) and an LSTM network. The networks are trained using an early stopping strategy. The network weights that achieved the lowest validation loss are subsequently used to estimate BP values on the test set. Test results are stored in a .csv file for later analysis. Model checkpoints are also stored for later fine tuning and personalization.
 ```
 usage: ppg_training_mimic_iii.py [-h] [--arch ARCH] [--lr LR] [--batch_size BATCH_SIZE] [--winlen WINLEN] [--epochs EPOCHS]
                                  [--gpuid GPUID]
@@ -101,6 +101,32 @@ optional arguments:
   --winlen WINLEN       length of the ppg windows in samples (default: 875)
   --epochs EPOCHS       maximum number of epochs for training (default: 60)
   --gpuid GPUID         GPU-ID used for training in a multi-GPU environment (default: None)
+```
+### Personalizing pretrained neural networks using PPG data
+The script `ppg_personalization_mimic_iii.py` takes a set of test subjects and fine tunes neural network that were trained based on PPG data. The goal is to improve the MAE on those test subjects by using 20 % of each test subject's data for retraining. These 20 % can be dranwn randomly or systematically (the first 20 %). The remaining 80 % are used for validation. The script performs BP predictions using the validation data before and after personalization for comparison. Results are stored in a .csv file for later analysis. 
+```
+usage: ppg_personalization_mimic_iii.py [-h] [--lr LR] [--batch_size BATCH_SIZE] [--winlen WINLEN] [--epochs EPOCHS]
+                                        [--nsubj NSUBJ] [--randompick RANDOMPICK]
+                                        ExpName DataDir ResultsDir ModelPath chkptdir
+
+positional arguments:
+  ExpName               Name of the training preceeded by the repsective date in the format MM-DD-YYYY
+  DataDir               folder containing the train, val and test subfolders containing tfrecord files
+  ResultsDir            Directory in which results are stored
+  ModelPath             Path where the model file used for personalization is located
+  chkptdir              directory used for storing model checkpoints
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --lr LR               initial learning rate (default: 0.003)
+  --batch_size BATCH_SIZE
+                        batch size used for training (default: 32)
+  --winlen WINLEN       length of the ppg windows in samples (default: 875)
+  --epochs EPOCHS       maximum number of epochs for training (default: 60)
+  --nsubj NSUBJ         Number subjects used for personalization (default :20)
+  --randompick RANDOMPICK
+                        define wether data for personalization is drawn randomly (1) or comprises the first 20 % of the test
+                        subject's data (0) (default: 0)
 
 ```
 
