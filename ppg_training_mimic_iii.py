@@ -90,7 +90,7 @@ def get_model(architecture, input_shape, UseDerivative=False):
         'lstm' : define_LSTM(input_shape)
     }[architecture]
 
-def train_mimic_iii_ppg(architecture,
+def ppg_train_mimic_iii(architecture,
                         DataDir,
                         ResultsDir,
                         CheckpointDir,
@@ -243,7 +243,7 @@ if __name__ == "__main__":
 
     tfrecord_basename = 'MIMIC_III_ppg'
 
-    train_mimic_iii_ppg(architecture,
+    ppg_train_mimic_iii(architecture,
                         DataDir,
                         ResultsDir,
                         CheckpointDir,
