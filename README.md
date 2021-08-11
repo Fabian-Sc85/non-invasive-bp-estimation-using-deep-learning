@@ -23,6 +23,18 @@ Necessary python packages can be installed using the command
 pip install -r requirements.txt
 ```
 ## Using the scripts
+### Overview
+To reproduce the paper's results, the scripts described below have to be executed in s specific order. The following table summarizes the purpose of each script.
+
+|   |Script                             | Description                                                   |
+|---|-----------------------------------|---------------------------------------------------------------|
+|1  |`download_mimic_iii_records.py`    |Downloads data from the MIMIC-III database
+|2  |`prepare_MIMIC_dataset.py`         |This script is used for:<ul><li>Preprocessing</li><li>dividing signals into windows</li><li>extracting ground truth SBP and DBP from signal windows</li><li>Storing singal/BP-value pairs in hdf5 format</li></ul>|
+|3  |`prepare_MIMIC_dataset.py`         | divides the data into training, validation and test set and converts the data to the .tfrecord format which will be used during training|
+|4  |`ppg_train_mimic_iii.py`           | trains neural networks for BP prediction using PPG data; saves the trained model for later fine tuning and personalization using (r)PPG data|
+|5  |`ppg_personalization_mimic_iii.py` | Uses a pretrained neural network and fine tunes its final layers using partial data from test subjects|
+
+
 ### Downloading data from the MIMIC-III database
 The script `download_mimic_iii_records.py` can be used to download the records used for PPG based training. The specific record names are provided in the file `MIMIC-III_ppg_dataset_records.txt`. The script can be called from the command line using the command
 ```
