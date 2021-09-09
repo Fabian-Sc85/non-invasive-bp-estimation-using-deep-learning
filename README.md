@@ -32,7 +32,8 @@ To reproduce the paper's results, the scripts described below have to be execute
 |2  |`prepare_MIMIC_dataset.py`         |This script is used for:<ul><li>Preprocessing</li><li>dividing signals into windows</li><li>extracting ground truth SBP and DBP from signal windows</li><li>Storing singal/BP-value pairs in hdf5 format</li></ul>|
 |3  |`prepare_MIMIC_dataset.py`         | divides the data into training, validation and test set and converts the data to the .tfrecord format which will be used during training|
 |4  |`ppg_train_mimic_iii.py`           | trains neural networks for BP prediction using PPG data; saves the trained model for later fine tuning and personalization using (r)PPG data|
-|5  |`ppg_personalization_mimic_iii.py` | Uses a pretrained neural network and fine tunes its final layers using partial data from test subjects|
+|5  |`ppg_personalization_mimic_iii.py` | Uses a pretrained neural network and fine tunes its final layers using PPG data from subjects from the test set of the MIMIC-III database|
+|6  |`retrain_rppg_personalization.py`  | Uses a pretrained nueral network and fine tunes it using rPPG data. |
 
 
 ### Downloading data from the MIMIC-III database
@@ -141,13 +142,37 @@ optional arguments:
                         subject's data (0) (default: 0)
 
 ```
+### rPPG based BP prediction using transfer learning
+
+The script `retrain_rppg_personalization.py` trains a pretrained neural network (trained using the script `pg_train_mimic_iii.py`) for camera based BP prediction. The rPPG data is provided by a hdf5 file in the data subfolder. The rPPG data was collected during a study at the Leipzig University Hospital. Subjects were filmed using a standard RGB camera. rPPG signals were derived from skin regions on the subject's face using the plane-orthogonal-to-skin algorithm published by Wang et al. [[4]](#4).
+
+The pretrained networks are finetuned using a leave-one-subject-out cross validation scheme. Personalization can be performed by using a portion of the test subject's data for training. The networks are evaluated using the test subject's data BEFORE and AFTER fine tuning. Results are stored in a csv file for analysis.
+```
+usage: retrain_rppg_personalization.py [-h] [--pers PERS] [--randompick RANDOMPICK] ExpName DataFile ResultsDir ModelPath chkptdir
+
+positional arguments:
+  ExpName               Name of the training preceeded by the repsective date in the format MM-DD-YYYY
+  DataFile              Path to the hdf file containing rPPG signals
+  ResultsDir            Directory in which results are stored
+  ModelPath             Path where the model file used for rPPG based personalization is located
+  chkptdir              directory used for storing model checkpoints
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --pers PERS           If 0, performs personalizatin using data from the test subjct
+  --randompick RANDOMPICK
+                        If 0, uses the first 20 % of the test subject's data for testing, otherwise select randomly (only applies if --pers == 1)
+
+```
 
 ## References
 <a id="1">[1]</a> A. Krizhevsky, I. Sutskever, und G. E. Hinton, „ImageNet classification with deep convolutional neural networks“,
     Commun. ACM, Bd. 60, Nr. 6, S. 84–90, Mai 2017, doi: 10.1145/3065386.
 
-<a id="1">[2]</a> K. He, X. Zhang, S. Ren, und J. Sun, „Deep Residual Learning for Image Recognition“, in 2016 IEEE Conference on
+<a id="2">[2]</a> K. He, X. Zhang, S. Ren, und J. Sun, „Deep Residual Learning for Image Recognition“, in 2016 IEEE Conference on
     Computer Vision and Pattern Recognition (CVPR), Las Vegas, NV, USA, Juni 2016, S. 770–778. doi: 10.1109/CVPR.2016.90.
 
-<a id="1">[3]</a> G. Slapničar, N. Mlakar, und M. Luštrek, „Blood Pressure Estimation from Photoplethysmogram Using a Spectro-Temporal
+<a id="3">[3]</a> G. Slapničar, N. Mlakar, und M. Luštrek, „Blood Pressure Estimation from Photoplethysmogram Using a Spectro-Temporal
     Deep Neural Network“, Sensors, Bd. 19, Nr. 15, S. 3420, Aug. 2019, doi: 10.3390/s19153420.
+
+<a id="4">[4]</a> W. Wang, A. C. den Brinker, S. Stuijk, und G. de Haan, „Algorithmic Principles of Remote PPG“, IEEE Transactions on Biomedical Engineering, Bd. 64, Nr. 7, S. 1479–1491, Juli 2017, doi: 10.1109/TBME.2016.2609282.
