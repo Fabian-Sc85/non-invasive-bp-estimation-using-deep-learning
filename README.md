@@ -1,7 +1,7 @@
 # Assessment of non-invasive blood pressure prediction from PPG and rPPG signals using deep learning
 
 ## Introduction
-The code contained in this repository is intended to reproduce the results of the paper "Assessment of non-invasive blood pressure prediction from PPG and rPPG signals using deep learning" [Link to Paper](). Contained herein are scripts for downloading data from the MIMC-II database, data preprocessing as well as  training neural networks for (r)PPG based blood pressure prediction.
+The code contained in this repository is intended to reproduce the results of the paper "Assessment of non-invasive blood pressure prediction from PPG and rPPG signals using deep learning" which can be accessed via the [Sensors Special Issue "Contactless Sensors for Healthcare](https://www.mdpi.com/1424-8220/21/18/6022) [[1]](#1). Contained herein are scripts for downloading data from the MIMC-II database, data preprocessing as well as  training neural networks for (r)PPG based blood pressure prediction.
 
 Trainings are performed using Tensorflow 2.4.1 and Python 3.8. The scripts can be executed from the command line. 
 
@@ -93,7 +93,7 @@ optional arguments:
                         Perform subject based (1) or sample based (0) division of the dataset
 ```
 ### Training neural networks using PPG signals
-The script `ppg_train_mimic_iii.py` trains neural networks using tfrecord data created by script `h5_to_tfrecord.py`. Available neural architectures include AlexNet [[1]](#1), ResNet [[2]](#2), an architecture published by Slapnicar et al. [[3]](#3) and an LSTM network. The networks are trained using an early stopping strategy. The network weights that achieved the lowest validation loss are subsequently used to estimate BP values on the test set. Test results are stored in a .csv file for later analysis. Model checkpoints are also stored for later fine tuning and personalization.
+The script `ppg_train_mimic_iii.py` trains neural networks using tfrecord data created by script `h5_to_tfrecord.py`. Available neural architectures include AlexNet [[2]](#2), ResNet [[3]](#3), an architecture published by Slapnicar et al. [[4]](#4) and an LSTM network. The networks are trained using an early stopping strategy. The network weights that achieved the lowest validation loss are subsequently used to estimate BP values on the test set. Test results are stored in a .csv file for later analysis. Model checkpoints are also stored for later fine tuning and personalization.
 ```
 usage: ppg_training_mimic_iii.py [-h] [--arch ARCH] [--lr LR] [--batch_size BATCH_SIZE] [--winlen WINLEN] [--epochs EPOCHS]
                                  [--gpuid GPUID]
@@ -144,7 +144,7 @@ optional arguments:
 ```
 ### rPPG based BP prediction using transfer learning
 
-The script `retrain_rppg_personalization.py` trains a pretrained neural network (trained using the script `pg_train_mimic_iii.py`) for camera based BP prediction. The rPPG data is provided by a hdf5 file in the data subfolder. The rPPG data was collected during a study at the Leipzig University Hospital. Subjects were filmed using a standard RGB camera. rPPG signals were derived from skin regions on the subject's face using the plane-orthogonal-to-skin algorithm published by Wang et al. [[4]](#4).
+The script `retrain_rppg_personalization.py` trains a pretrained neural network (trained using the script `pg_train_mimic_iii.py`) for camera based BP prediction. The rPPG data is provided by a hdf5 file in the data subfolder. The rPPG data was collected during a study at the Leipzig University Hospital. Subjects were filmed using a standard RGB camera. rPPG signals were derived from skin regions on the subject's face using the plane-orthogonal-to-skin algorithm published by Wang et al. [[5]](#5).
 
 The pretrained networks are finetuned using a leave-one-subject-out cross validation scheme. Personalization can be performed by using a portion of the test subject's data for training. The networks are evaluated using the test subject's data BEFORE and AFTER fine tuning. Results are stored in a csv file for analysis.
 ```
@@ -164,15 +164,36 @@ optional arguments:
                         If 0, uses the first 20 % of the test subject's data for testing, otherwise select randomly (only applies if --pers == 1)
 
 ```
+## Using the pretrained models
+The subfolder `trained_models` contains .h5-files containing models definitions and weights. The models wer trained using a non-mixed dataset as described in [[1]](#1). To use the networks for prediction/fine-tuning, input and output data must meet the following requirements:
+* input data must have a length of 875 samples (corresponds to 7 seconds using a sampling frequency of 125 Hz)
+* SBP and DBP must be provided separately as there is one output node for each value
+
+The models can be imported the following way:
+```python
+import tensorflow.keras as ks
+from kapre import STFT, Magnitude, MagnitudeToDecibel
+
+dependencies = {
+        'ReLU': ks.layers.ReLU,
+        'STFT': STFT,
+        'Magnitude': Magnitude,
+        'MagnitudeToDecibel': MagnitudeToDecibel
+
+model = ks.load_model(<PathToModelFile>, custom_objects=dependencies)
+```
+Predictions can then be made using the `model.predict()` function. 
 
 ## References
-<a id="1">[1]</a> A. Krizhevsky, I. Sutskever, und G. E. Hinton, „ImageNet classification with deep convolutional neural networks“,
+<a id="1">[1]</a> Schrumpf, F.; Frenzel, P.; Aust, C.; Osterhoff, G.; Fuchs, M. Assessment of Non-Invasive Blood Pressure Prediction from PPG and rPPG Signals Using Deep Learning. Sensors 2021, 21, 6022. https://doi.org/10.3390/s21186022 
+
+<a id="2">[2]</a> A. Krizhevsky, I. Sutskever, und G. E. Hinton, „ImageNet classification with deep convolutional neural networks“,
     Commun. ACM, Bd. 60, Nr. 6, S. 84–90, Mai 2017, doi: 10.1145/3065386.
 
-<a id="2">[2]</a> K. He, X. Zhang, S. Ren, und J. Sun, „Deep Residual Learning for Image Recognition“, in 2016 IEEE Conference on
+<a id="3">[3]</a> K. He, X. Zhang, S. Ren, und J. Sun, „Deep Residual Learning for Image Recognition“, in 2016 IEEE Conference on
     Computer Vision and Pattern Recognition (CVPR), Las Vegas, NV, USA, Juni 2016, S. 770–778. doi: 10.1109/CVPR.2016.90.
 
-<a id="3">[3]</a> G. Slapničar, N. Mlakar, und M. Luštrek, „Blood Pressure Estimation from Photoplethysmogram Using a Spectro-Temporal
+<a id="4">[4]</a> G. Slapničar, N. Mlakar, und M. Luštrek, „Blood Pressure Estimation from Photoplethysmogram Using a Spectro-Temporal
     Deep Neural Network“, Sensors, Bd. 19, Nr. 15, S. 3420, Aug. 2019, doi: 10.3390/s19153420.
 
-<a id="4">[4]</a> W. Wang, A. C. den Brinker, S. Stuijk, und G. de Haan, „Algorithmic Principles of Remote PPG“, IEEE Transactions on Biomedical Engineering, Bd. 64, Nr. 7, S. 1479–1491, Juli 2017, doi: 10.1109/TBME.2016.2609282.
+<a id="5">[5]</a> W. Wang, A. C. den Brinker, S. Stuijk, und G. de Haan, „Algorithmic Principles of Remote PPG“, IEEE Transactions on Biomedical Engineering, Bd. 64, Nr. 7, S. 1479–1491, Juli 2017, doi: 10.1109/TBME.2016.2609282.
