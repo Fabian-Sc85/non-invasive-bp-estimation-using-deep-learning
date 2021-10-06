@@ -16,9 +16,12 @@ Date last modified: 8/4/2021
 
 from os.path import expanduser, join, isdir
 from os import mkdir
+from sys import argv
 from itertools import compress
 import datetime
 import argparse
+#import warnings
+#warnings.filterwarnings("error")
 
 import wfdb
 import numpy as np
@@ -47,6 +50,7 @@ def download_mimic_iii_records(RecordsFile, OutputPath):
     with open(RecordsFile, 'r') as f:
         RecordFiles = f.read()
         RecordFiles = RecordFiles.split("\n")
+        RecordFiles = RecordFiles[:-1]
     
     for file in RecordFiles:
         print(f'{datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}: Processing record {file}')
@@ -69,13 +73,21 @@ def download_mimic_iii_records(RecordsFile, OutputPath):
             continue
 
         # detect systolic and diastolic peaks using heartpy
-        abp_FidPoints = hp.process(abp, fs)
+        try:
+            abp_FidPoints = hp.process(abp, fs)
+        except hp.exceptions.BadSignalWarning:
+            continue
+
         ValidPks = abp_FidPoints[0]['binary_peaklist']
         abp_sys_pks = abp_FidPoints[0]['peaklist']
         abp_sys_pks = list(compress(abp_sys_pks, ValidPks == 1))
         abp_dia_pks = find_minima(abp, abp_sys_pks, fs)
-    
-        ppg_FidPoints = hp.process(ppg, fs)
+
+        try:
+            ppg_FidPoints = hp.process(ppg, fs)
+        except hp.exceptions.BadSignalWarning:
+            continue
+
         ValidPks = ppg_FidPoints[0]['binary_peaklist']
         ppg_pks = ppg_FidPoints[0]['peaklist']
         ppg_pks = list(compress(ppg_pks, ValidPks == 1))
@@ -100,12 +112,14 @@ def download_mimic_iii_records(RecordsFile, OutputPath):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('input', type=str, help='File containing the names of the records downloaded from the MIMIC-III DB')
+    parser.add_argument('input', type=str,
+                        help='File containing the names of the records downloaded from the MIMIC-III DB')
     parser.add_argument('output', type=str, help='Folder for storing downloaded MIMIC-III records')
+
     args = parser.parse_args()
-    
+
     RecordsFile = args.input
     OutputPath = args.output
-    
+
     download_mimic_iii_records(RecordsFile, OutputPath)
     
