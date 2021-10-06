@@ -1,4 +1,4 @@
-h5py==3.3.0
+h5py==2.10.0
 heartpy==1.2.7
 wfdb==3.4.0
 kapre==0.3.5
@@ -6,5 +6,5 @@ tensorflow-gpu==2.4.1
 natsort==7.1.1
 pandas==1.3.1
 matplotlib==3.4.2
-sklearn==0.42.2
+scikit-learn==0.24.2
 mat73==0.50
