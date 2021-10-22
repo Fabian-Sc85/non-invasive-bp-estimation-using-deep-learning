@@ -31,12 +31,15 @@ To reproduce the paper's results, the scripts described below have to be execute
 |   |Script                             | Description                                                   |
 |---|-----------------------------------|---------------------------------------------------------------|
 |1  |`download_mimic_iii_records.py`    |Downloads data from the MIMIC-III database
-|2  |`prepare_MIMIC_dataset.py`         |This script is used for:<ul><li>Preprocessing</li><li>dividing signals into windows</li><li>extracting ground truth SBP and DBP from signal windows</li><li>Storing singal/BP-value pairs in hdf5 format</li></ul> Alternatively, the dataset can be downloaded from [Zenodo](https://zenodo.org/record/5553969#.YV7IGnUzaEI) (32 GB)|
+|2  |`prepare_MIMIC_dataset.py`         |This script is used for:<ul><li>Preprocessing</li><li>dividing signals into windows</li><li>extracting ground truth SBP and DBP from signal windows</li><li>Storing singal/BP-value pairs in hdf5 format</li></ul> Alternatively, the dataset can be downloaded from [Zenodo](https://zenodo.org/record/5590603) (32 GB)|
 |3  |`h5_to_tfrecord.py`         | divides the data into training, validation and test set and converts the data to the .tfrecord format which will be used during training|
 |4  |`ppg_train_mimic_iii.py`           | trains neural networks for BP prediction using PPG data; saves the trained model for later fine tuning and personalization using (r)PPG data|
 |5  |`ppg_personalization_mimic_iii.py` | Uses a pretrained neural network and fine tunes its final layers using PPG data from subjects from the test set of the MIMIC-III database|
 |6  |`retrain_rppg_personalization.py`  | Uses a pretrained nueral network and fine tunes it using rPPG data. |
 
+### Datasets and trained models
+
+The PPG dataset used for training the neural architectures and the trained models themselves can be found at [Zenodo](https://zenodo.org/record/5590603).
 
 ### Downloading data from the MIMIC-III database
 The script `download_mimic_iii_records.py` can be used to download the records used for PPG based training. The specific record names are provided in the file `MIMIC-III_ppg_dataset_records.txt`. The script can be called from the command line using the command
@@ -57,7 +60,7 @@ The Script `prepare_MIMIC_dataset.py` preprocesses the data downloaded by `downl
 
 The maximum number of samples per subject and for the whole dataset can be defined. The dataset is saved to a .h5 file for further processing.
 
-Alternatively, the dataset can be downloaded from [Zenodo](https://zenodo.org/record/5553969#.YV7IGnUzaEI) (32 GB)
+Alternatively, the dataset can be downloaded from [Zenodo](https://zenodo.org/record/5590603) (32 GB)
 
 ```
 usage: prepare_MIMIC_dataset.py [-h] [--win_len WIN_LEN] [--win_overlap WIN_OVERLAP] [--maxsampsubject MAXSAMPSUBJECT]
@@ -97,7 +100,7 @@ optional arguments:
                         Perform subject based (1) or sample based (0) division of the dataset
 ```
 ### Training neural networks using PPG signals
-The script `ppg_train_mimic_iii.py` trains neural networks using tfrecord data created by script `h5_to_tfrecord.py`. Available neural architectures include AlexNet [[2]](#2), ResNet [[3]](#3), an architecture published by Slapnicar et al. [[4]](#4) and an LSTM network. The networks are trained using an early stopping strategy. The network weights that achieved the lowest validation loss are subsequently used to estimate BP values on the test set. Test results are stored in a .csv file for later analysis. Model checkpoints are also stored for later fine tuning and personalization.
+The script `ppg_train_mimic_iii.py` trains neural networks using tfrecord data created by script `h5_to_tfrecord.py`. Available neural architectures include AlexNet [[2]](#2), ResNet [[3]](#3), an architecture published by Slapnicar et al. [[4]](#4) and an LSTM network. The networks are trained using an early stopping strategy. The network weights that achieved the lowest validation loss are subsequently used to estimate BP values on the test set. Test results are stored in a .csv file for later analysis. Model checkpoints are also stored for later fine tuning and personalization. The trained models used in the paper can be found at [Zenodo](https://zenodo.org/record/5590603).
 ```
 usage: ppg_training_mimic_iii.py [-h] [--arch ARCH] [--lr LR] [--batch_size BATCH_SIZE] [--winlen WINLEN] [--epochs EPOCHS]
                                  [--gpuid GPUID]
