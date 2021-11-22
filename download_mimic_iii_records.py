@@ -100,7 +100,7 @@ def download_mimic_iii_records(RecordsFile, OutputPath):
         if not isdir(SubjectFolder):
             mkdir(SubjectFolder)
     
-        with h5py.File(join(SubjectFolder, file.split('/')[1]),'w') as f:
+        with h5py.File(join(SubjectFolder, file.split('/')[1] + ".h5"),'w') as f:
             signals = np.concatenate((abp[:,np.newaxis],ppg[:,np.newaxis]), axis=1)
             f.create_dataset('val', signals.shape, data=signals)
             f.create_dataset('nB2', (1,len(ppg_onset_pks)), data=ppg_onset_pks)

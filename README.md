@@ -79,7 +79,7 @@ optional arguments:
   --maxsampsubject MAXSAMPSUBJECT
                         Maximum number of samples per subject
   --maxsamp MAXSAMP     Maximum total number os samples in the dataset
-  --save_bp_data SAVE_BP_DATA
+  --save_ppg_data SAVE_PPG_DATA
                         0: save BP data only; 1: save PPG and BP data
 ```
 ### Creating tfrecord datasets for training

@@ -19,7 +19,6 @@ from sys import argv
 import datetime
 import argparse
 
-import mat73
 import h5py
 import numpy as np
 from scipy.signal import butter, freqs, filtfilt
@@ -35,7 +34,7 @@ def CreateWindows(win_len, fs, N_samp, overlap):
 
     return idx_start, idx_stop
 
-def prepare_MIMIC_dataset(DataPath, OutputFile, NsampPerSubMax:int=None, NsampMax:int=None, win_len:int=7, win_overlap:float=0.5, savePPGData=True):
+def prepare_MIMIC_dataset(DataPath, OutputFile, NsampPerSubMax:int=None, NsampMax:int=None, win_len:int=7, win_overlap:float=0.5, savePPGData=False):
 
     if savePPGData == False:
         print("Saving BP data only")
@@ -76,19 +75,22 @@ def prepare_MIMIC_dataset(DataPath, OutputFile, NsampPerSubMax:int=None, NsampMa
         PPG_RECORD = np.empty((0, win_len * fs))
         OUTPUT = np.empty((0, 2))
 
-        DataFiles = [f for f in listdir(join(DataPath,dirs)) if isfile(join(DataPath, dirs,f)) and f.endswith('.mat')]
+        DataFiles = [f for f in listdir(join(DataPath,dirs)) if isfile(join(DataPath, dirs,f)) and f.endswith('.h5')]
         shuffle(DataFiles)
 
         N_samp_total = 0
         for file in DataFiles:
             try:
-                data = mat73.loadmat(join(DataPath, dirs, file))
+                with h5py.File(join(DataPath, dirs, file), "r") as f:
+                    data = {}
+                    for key in f.keys():
+                        data[key] = np.array(f[key]).transpose()
             except TypeError:
                 print("could not read file. Skipping.")
             if savePPGData:
-                PPG = data['val'][0, :]
+                PPG = data['val'][1, :]
 
-            ABP = data['val'][1, :]
+            ABP = data['val'][0, :]
 
             if 'nB2' not in data:
                 continue
@@ -277,36 +279,31 @@ def prepare_MIMIC_dataset(DataPath, OutputFile, NsampPerSubMax:int=None, NsampMa
 
 if __name__ == "__main__":
     np.random.seed(seed=42)
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('datapath', type=str, help="Path containing data records downloaded from the MIMIC-III database")
+    parser.add_argument('datapath', type=str,
+                        help="Path containing data records downloaded from the MIMIC-III database")
     parser.add_argument('output', type=str, help="Target .h5 file")
-    parser.add_argument('--win_len', type=int, nargs='?', default=7, help="PPG window length in seconds (default: 7)")
-    parser.add_argument('--win_overlap', type=float, nargs='?', default=0.5, help="ammount of overlap between adjacend windows in fractions of the window length (default: 0.5)")
+    parser.add_argument('--win_len', type=int, nargs='?', default=7,
+                        help="PPG window length in seconds (default: 7)")
+    parser.add_argument('--win_overlap', type=float, nargs='?', default=0.5,
+                        help="ammount of overlap between adjacend windows in fractions of the window length (default: 0.5)")
     parser.add_argument('--maxsampsubject', type=int, default=None, help="Maximum number of samples per subject")
     parser.add_argument('--maxsamp', type=int, default=None, help="Maximum total number os samples in the dataset")
-    parser.add_argument('--save_bp_data', type=int, default=1, help="0: save BP data only; 1: save PPG and BP data")
+    parser.add_argument('--save_ppg_data', type=int, default=0, help="0: save BP data only; 1: save PPG and BP data")
     args = parser.parse_args()
 
-    if len(argv) > 1:
-        DataPath = args.datapath
-        OutputFile = args.output
-        win_len = args.win_len
-        win_overlap = args.win_overlap
-        NsampPerSubMax = args.maxsampsubject
-        NsampMax = args.maxsamp
-        savePPGData = args.save_bp_data
-        if savePPGData == 0:
-            savePPGData = False
-        else:
-            savePPGData = True
-    else:
-        HomePath = expanduser("~")
-        DataPath = join(HomePath, 'datacrypt', 'MIMIC-III_BP', 'processed')
-        OutputFile = join(HomePath, 'data', 'MIMIC-III_BP','MIMIC-III_ppg_dataset_BPonly.h5')
-        NsampPerSubMax = None
-        NsampMax = None
+    DataPath = args.datapath
+    OutputFile = args.output
+    win_len = args.win_len
+    win_overlap = args.win_overlap
+    NsampPerSubMax = args.maxsampsubject
+    NsampMax = args.maxsamp
+    savePPGData = args.save_ppg_data
+    if savePPGData == 0:
         savePPGData = False
-        win_len = 7
-        win_overlap = 0.5
+    else:
+        savePPGData = True
+
     prepare_MIMIC_dataset(DataPath, OutputFile, NsampPerSubMax=NsampPerSubMax, NsampMax=NsampMax,
                           savePPGData=savePPGData, win_len=win_len, win_overlap=win_overlap)
