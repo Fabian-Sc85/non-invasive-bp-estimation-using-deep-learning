@@ -201,20 +201,26 @@ def ppg_train_mimic_iii(architecture,
     return history.history['SBP_mae'][idx_min], history.history['DBP_mae'][idx_min], history.history['val_SBP_mae'][idx_min], history.history['val_DBP_mae'][idx_min]
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('ExpName', type=str, help="unique name for the training")
-    parser.add_argument('datadir', type=str, help="folder containing the train, val and test subfolders containing tfrecord files")
-    parser.add_argument('resultsdir', type=str, help="Directory in which results are stored")
-    parser.add_argument('chkptdir', type=str, help="directory used for storing model checkpoints")
-    parser.add_argument('--arch', type=str, default="alexnet", help="neural architecture used for training (alexnet (default), resnet,  slapnicar, lstm)")
-    parser.add_argument('--lr', type=float, default=0.003, help="initial learning rate (default: 0.003)")
-    parser.add_argument('--batch_size', type=int, default=32, help="batch size used for training (default: 32)")
-    parser.add_argument('--winlen', type=int, default=875, help="length of the ppg windows in samples (default: 875)")
-    parser.add_argument('--epochs', type=int, default=60, help="maximum number of epochs for training (default: 60)")
-    parser.add_argument('--gpuid', type=str, default=None, help="GPU-ID used for training in a multi-GPU environment (default: None)")
-    args = parser.parse_args()
 
     if len(argv) > 1:
+        parser = argparse.ArgumentParser()
+        parser.add_argument('ExpName', type=str, help="unique name for the training")
+        parser.add_argument('datadir', type=str,
+                            help="folder containing the train, val and test subfolders containing tfrecord files")
+        parser.add_argument('resultsdir', type=str, help="Directory in which results are stored")
+        parser.add_argument('chkptdir', type=str, help="directory used for storing model checkpoints")
+        parser.add_argument('--arch', type=str, default="alexnet",
+                            help="neural architecture used for training (alexnet (default), resnet,  slapnicar, lstm)")
+        parser.add_argument('--lr', type=float, default=0.003, help="initial learning rate (default: 0.003)")
+        parser.add_argument('--batch_size', type=int, default=32, help="batch size used for training (default: 32)")
+        parser.add_argument('--winlen', type=int, default=875,
+                            help="length of the ppg windows in samples (default: 875)")
+        parser.add_argument('--epochs', type=int, default=60,
+                            help="maximum number of epochs for training (default: 60)")
+        parser.add_argument('--gpuid', type=str, default=None,
+                            help="GPU-ID used for training in a multi-GPU environment (default: None)")
+        args = parser.parse_args()
+
         architecture = args.arch
         experiment_name = args.ExpName
         experiment_name = datetime.now().strftime("%Y-%d-%m") + '_' + architecture + '_' + experiment_name
