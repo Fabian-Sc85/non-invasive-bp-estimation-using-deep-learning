@@ -30,7 +30,7 @@ from tensorflow.keras import optimizers
 
 from tensorflow.keras.layers import Conv2D, MaxPooling2D
 
-def diff(input, fs=125):
+def diff(input, fs):
     dt = (input[:, 1:] - input[:, :-1]) * fs
     dt = tf.pad(dt, tf.constant([[0, 0], [0, 1], [0, 0]]))
 
@@ -123,7 +123,9 @@ def single_channel_resnet(my_input, num_filters=64, num_res_blocks=4, cnn_per_re
     return my_input, x
 
 
-def raw_signals_deep_ResNet(input, fs=125, UseDerivative=False):
+def raw_signals_deep_ResNet(input, UseDerivative=False):
+    fs=125
+
     inputs = []
     l2_lambda = .001
     channel_outputs = []
@@ -132,7 +134,7 @@ def raw_signals_deep_ResNet(input, fs=125, UseDerivative=False):
     X_input = Input(shape=input)
 
     if UseDerivative:
-        fs = tf.constant(fs, dtype=float)
+        # fs = tf.constant(fs, dtype=float)
         X_dt1 = Lambda(diff, arguments={'fs': fs})(X_input)
         X_dt2 = Lambda(diff, arguments={'fs': fs})(X_dt1)
         X = [X_input, X_dt1, X_dt2]
