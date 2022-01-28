@@ -3,7 +3,19 @@
 ## Introduction
 The code contained in this repository is intended to reproduce the results of the paper "Assessment of non-invasive blood pressure prediction from PPG and rPPG signals using deep learning" which can be accessed via the [Sensors Special Issue "Contactless Sensors for Healthcare](https://www.mdpi.com/1424-8220/21/18/6022) [[1]](#1). Contained herein are scripts for downloading data from the MIMC-II database, data preprocessing as well as  training neural networks for (r)PPG based blood pressure prediction.
 
-Trainings are performed using Tensorflow 2.4.1 and Python 3.8. The scripts can be executed from the command line. 
+Trainings are performed using Tensorflow 2.4.1 and Python 3.8. The scripts can be executed from the command line.
+
+If you find this repository useful for your own research, please consider citing our paper:
+
+```
+@inproceedings{schrumpf2021assessment,
+  title={Assessment of deep learning based blood pressure prediction from PPG and rPPG signals},
+  author={Schrumpf, Fabian and Frenzel, Patrick and Aust, Christoph and Osterhoff, Georg and Fuchs, Mirco},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={3820--3830},
+  year={2021}
+}
+```
 
 ## Installation
 To create a virtual environment using Python 3.8 as interpreter the `virtualenv` package is required. It can be installed using the command
@@ -153,6 +165,18 @@ optional arguments:
 
 The script `retrain_rppg_personalization.py` trains a pretrained neural network (trained using the script `pg_train_mimic_iii.py`) for camera based BP prediction. The rPPG data is provided by a hdf5 file in the data subfolder. The rPPG data was collected during a study at the Leipzig University Hospital. Subjects were filmed using a standard RGB camera. rPPG signals were derived from skin regions on the subject's face using the plane-orthogonal-to-skin algorithm published by Wang et al. [[5]](#5).
 
+If you use this data in you own research, please cite our paper:
+
+```
+@inproceedings{schrumpf2021assessment,
+  title={Assessment of deep learning based blood pressure prediction from PPG and rPPG signals},
+  author={Schrumpf, Fabian and Frenzel, Patrick and Aust, Christoph and Osterhoff, Georg and Fuchs, Mirco},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={3820--3830},
+  year={2021}
+}
+```
+
 The pretrained networks are finetuned using a leave-one-subject-out cross validation scheme. Personalization can be performed by using a portion of the test subject's data for training. The networks are evaluated using the test subject's data BEFORE and AFTER fine tuning. Results are stored in a csv file for analysis.
 ```
 usage: retrain_rppg_personalization.py [-h] [--pers PERS] [--randompick RANDOMPICK] ExpName DataFile ResultsDir ModelPath chkptdir
@@ -171,6 +195,9 @@ optional arguments:
                         If 0, uses the first 20 % of the test subject's data for testing, otherwise select randomly (only applies if --pers == 1)
 
 ```
+The 
+
+
 ## Using the pretrained models
 The subfolder `trained_models` contains .h5-files containing models definitions and weights. The models wer trained using a non-mixed dataset as described in [[1]](#1). To use the networks for prediction/fine-tuning, input and output data must meet the following requirements:
 * input data must have a length of 875 samples (corresponds to 7 seconds using a sampling frequency of 125 Hz)
