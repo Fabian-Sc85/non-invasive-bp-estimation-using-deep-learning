@@ -193,7 +193,7 @@ def raw_signals_deep_ResNet(input, UseDerivative=False):
     # optimizer = optimizers.Adadelta()
     # loss = ks.keras.losses.mean_absolute_error
     # model.compile(optimizer=optimizer, loss=loss, metrics=['mae', 'mae'])
-    print(model.summary())
+    # print(model.summary())
     # plot_model(model=model, to_file='lstm_model.png', show_shapes=True, show_layer_names=True)
     return model
 

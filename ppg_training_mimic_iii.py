@@ -119,7 +119,7 @@ def ppg_train_mimic_iii(architecture,
 
     # load the neurarchitecture
     model = get_model(architecture, data_in_shape, UseDerivative=UseDerivative)
-
+    print(model.summary())
     # callback for logging training and validation results
     csvLogger_cb = tf.keras.callbacks.CSVLogger(
         filename=join(ResultsDir,experiment_name + '_learningcurve.csv')
