@@ -235,11 +235,18 @@ if __name__ == "__main__":
         SourceFile = args.input
         tfrecordsPath = args.output
         divbysubj = True if args.divbysubj == 1 else False
+
+        N_train = int(args.ntrain)
+        N_val = int(args.nval)
+        N_test = int(args.ntest)
     else:
         HomePath = expanduser("~")
         SourceFile = join(HomePath, 'data', 'MIMIC-III_BP', 'MIMIC-III_ppg_dataset.h5')
         tfrecordsPath = join(HomePath, 'test')
-        divbysubj = False
+        divbysubj = True
+        N_train = 1e6
+        N_val = 2.5e5
+        N_test = 2.5e5
 
     h5_to_tfrecords(SourceFile=SourceFile, tfrecordsPath=tfrecordsPath, divide_by_subject=divbysubj,
-                        save_tfrecords=True)
+                      N_train=N_train, N_val=N_val, N_test=N_test)
