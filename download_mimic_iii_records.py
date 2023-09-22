@@ -64,13 +64,29 @@ def download_mimic_iii_records(RecordsFile, OutputPath):
             ppg = record.p_signal[:,pleth_idx]
             fs = record.fs
         else:
+            print('No PLETH (PPG) in the record.')
             continue
     
         if 'ABP' in record.sig_name:
             abp_idx = record.sig_name.index('ABP')
             abp = record.p_signal[:,abp_idx]
         else:
+            print('No ABP in the record.')
             continue
+
+        if np.any(np.isnan(ppg)):
+            nonnan_indices_ppg = np.argwhere(~np.isnan(ppg))
+            ppg = ppg[nonnan_indices_ppg]
+            abp = abp[nonnan_indices_ppg]
+            ppg = ppg.reshape(-1)
+            abp = abp.reshape(-1)
+
+        if np.any(np.isnan(abp)):
+            nonnan_indices_abp = np.argwhere(~np.isnan(abp))
+            ppg = ppg[nonnan_indices_abp]
+            abp = abp[nonnan_indices_abp]
+            ppg = ppg.reshape(-1)
+            abp = abp.reshape(-1)
 
         # detect systolic and diastolic peaks using heartpy
         try:
@@ -86,6 +102,7 @@ def download_mimic_iii_records(RecordsFile, OutputPath):
         try:
             ppg_FidPoints = hp.process(ppg, fs)
         except hp.exceptions.BadSignalWarning:
+            print('Bad signal; ABP peaks are not recognised. Skip')
             continue
 
         ValidPks = ppg_FidPoints[0]['binary_peaklist']
